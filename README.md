@@ -2,7 +2,12 @@
 
 ## Treino de Rede Neural Convolucional 
 Rede com objetivo de avaliar imagens de raio-x de torax, para classificar possivel incidencia de pneumunia. 
-''' requirements.txt
+
+### Vesão do python usado no treino
+- Python 3.13.3
+
+### Arquivo com dependências da aplicação 
+- requirements.txt
 
 
 
