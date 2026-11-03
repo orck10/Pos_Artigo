@@ -1,0 +1,4 @@
+.venv/*
+.venvLinux/*
+logs/*
+chest_xray/*
