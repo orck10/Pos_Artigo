@@ -5,7 +5,7 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, random_split
 from torchvision.datasets import ImageFolder
-from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import resnet50, ResNet50_Weights
 import matplotlib.pyplot as plt
 import multiprocessing
 from sklearn.metrics import classification_report
@@ -44,10 +44,10 @@ logger = logging.getLogger(__name__)
 
 # Configurações
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-num_epochs = 30
-batch_size = 8
-learning_rate = 0.0001
-num_workers = min(multiprocessing.cpu_count(), 8)
+num_epochs = 20
+batch_size = 10
+learning_rate = 0.000001
+num_workers = min(multiprocessing.cpu_count(), 6)
 
 # Verificar CUDA
 logger.info(f"CUDA disponível: {torch.cuda.is_available()}")
@@ -56,6 +56,8 @@ if torch.cuda.is_available():
     logger.info(f"Memória alocada inicialmente: {torch.cuda.memory_allocated(device) / 1024**2:.2f} MB")
 
 # 1. Definir transformações
+#Preparaçao da Camada Prata
+#-----------------------------------------------------------------
 train_transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
@@ -74,8 +76,11 @@ test_transform = transforms.Compose([
 ])
 
 # 2. Carregar datasets
+#Carregar Camada Bronze Para o tratamento
 full_train_dataset = ImageFolder(root='chest_xray/train', transform=train_transform)
 test_dataset = ImageFolder(root='chest_xray/test', transform=test_transform)
+
+
 
 # Dividir o conjunto de treino em treino e validação (80% treino, 20% validação)
 train_size = int(0.8 * len(full_train_dataset))
@@ -86,13 +91,15 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, nu
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
+#-----------------------------------------------------------------
+
 # Verificar classes
 logger.info(f"Classes: {full_train_dataset.classes}")
 logger.info(f"Tamanho do conjunto de treino: {len(train_dataset)}")
 logger.info(f"Tamanho do conjunto de validação: {len(val_dataset)}")
 
 # 3. Definir a arquitetura da CNN
-model = resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 model.fc = nn.Linear(model.fc.in_features, 2)
 model = model.to(device)
 
@@ -211,5 +218,7 @@ if __name__ == '__main__':
     train_model()
     evaluate_model()
 
+
 # 8. Salvar o modelo treinado
+#Persistencia da Camada Ouro
 torch.save(model.state_dict(), 'pneumonia_model.pth')
